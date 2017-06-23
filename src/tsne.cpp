@@ -139,7 +139,6 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
   if (n_landmarks > 0) {
     for(int i = 0; i < n_landmarks * no_dims; i++) {
       Y_landmarks[i] = Y[i];
-      Rprintf("i = %d, Y[i] = %f\n", i, Y[i]);
     }
   }
 
@@ -172,6 +171,13 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
         // Perform gradient update (with momentum and gains)
         for(int i = 0; i < N * no_dims; i++) uY[i] = momentum * uY[i] - eta * gains[i] * dY[i];
 		    for(int i = 0; i < N * no_dims; i++)  Y[i] = Y[i] + uY[i];
+
+        // Copy back landmarks.
+        if (n_landmarks > 0) {
+          for(int i = 0; i < n_landmarks * no_dims; i++) {
+            Y[i] = Y_landmarks[i];
+          }
+        }
         
         // Make solution zero-mean
 		    zeroMean(Y, N, no_dims);
