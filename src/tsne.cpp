@@ -136,9 +136,29 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
 	if (!init) { for(int i = 0; i < N * no_dims; i++) Y[i] = randn() * .0001; }
 
   // Copy landmarks.
-  if (n_landmarks > 0) {
+  if(n_landmarks > 0) {
     for(int i = 0; i < n_landmarks * no_dims; i++) {
       Y_landmarks[i] = Y[i];
+    }
+
+    // Find min/max, scale to [0, 1] range
+    min_0 = 99999
+    max_0 = -99999
+    min_1 = 99999
+    max_1 = -99999
+
+    for(int i = 0; i < N; i++) {
+      if(Y[i * no_dims + 0] < min_0) min_0 = Y[i * no_dims + 0];
+      if(Y[i * no_dims + 0] > max_0) max_0 = Y[i * no_dims + 0];
+      if(Y[i * no_dims + 1] < min_1) min_1 = Y[i * no_dims + 1];
+      if(Y[i * no_dims + 1] > max_1) max_1 = Y[i * no_dims + 1];
+    }
+
+    diff_0 = max_0 - min_0;
+    diff_1 = max_1 - min_1;
+    for(int i = 0; i < N; i++) {
+      Y[i * no_dims + 0] = (Y[i * no_dims + 0] - min_0) / diff_0;
+      Y[i * no_dims + 1] = (Y[i * no_dims + 1] - min_1) / diff_1;
     }
   }
 
@@ -176,6 +196,26 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
         if (n_landmarks > 0) {
           for(int i = 0; i < n_landmarks * no_dims; i++) {
             Y[i] = Y_landmarks[i];
+          }
+
+          // Find min/max, scale to [0, 1] range
+          min_0 = 99999
+          max_0 = -99999
+          min_1 = 99999
+          max_1 = -99999
+
+          for(int i = 0; i < N; i++) {
+            if(Y[i * no_dims + 0] < min_0) min_0 = Y[i * no_dims + 0];
+            if(Y[i * no_dims + 0] > max_0) max_0 = Y[i * no_dims + 0];
+            if(Y[i * no_dims + 1] < min_1) min_1 = Y[i * no_dims + 1];
+            if(Y[i * no_dims + 1] > max_1) max_1 = Y[i * no_dims + 1];
+          }
+
+          diff_0 = max_0 - min_0;
+          diff_1 = max_1 - min_1;
+          for(int i = 0; i < N; i++) {
+            Y[i * no_dims + 0] = (Y[i * no_dims + 0] - min_0) / diff_0;
+            Y[i * no_dims + 1] = (Y[i * no_dims + 1] - min_1) / diff_1;
           }
         }
         
