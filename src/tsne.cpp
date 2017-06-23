@@ -139,7 +139,7 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
   if (n_landmarks > 0) {
     for(int i = 0; i < n_landmarks * no_dims; i++) {
       Y_landmarks[i] = Y[i];
-      Rprintf("i = %d, Y[i] = %f\n", i, Y[i])
+      Rprintf("i = %d, Y[i] = %f\n", i, Y[i]);
     }
   }
 
