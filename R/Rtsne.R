@@ -35,6 +35,7 @@
 #' @param final_momentum numeric; Momentum used in the final part of the optimization (default: 0.8)
 #' @param eta numeric; Learning rate (default: 200.0)
 #' @param exaggeration_factor numeric; Exaggeration factor used to multiply the P matrix in the first part of the optimization (default: 12.0)
+#' @param n_landmarks integer; the first n_landmarks data points are anchored and not moved in gradient descent (default: 0)
 #' 
 #' @return List with the following elements:
 #' \item{Y}{Matrix containing the new representations for the objects}
@@ -90,7 +91,8 @@ Rtsne.default <- function(X, dims=2, initial_dims=50,
                           stop_lying_iter=ifelse(is.null(Y_init),250L,0L), 
                           mom_switch_iter=ifelse(is.null(Y_init),250L,0L), 
                           momentum=0.5, final_momentum=0.8,
-                          eta=200.0, exaggeration_factor=12.0, ...) {
+                          eta=200.0, exaggeration_factor=12.0,
+                          n_landmarks = 0, ...) {
   
   is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
   
@@ -106,6 +108,13 @@ Rtsne.default <- function(X, dims=2, initial_dims=50,
   if (!is.wholenumber(mom_switch_iter) || mom_switch_iter<0) { stop("mom_switch_iter should be a positive integer")}
   if (!is.numeric(exaggeration_factor)) { stop("exaggeration_factor should be numeric")}
   if (!is.wholenumber(initial_dims) || initial_dims<=0) { stop("Incorrect initial dimensionality.")}
+
+  if (!is.wholenumber(n_landmarks)) {
+    stop("number of landmarks should be a whole number")
+  }
+  if (n_landmarks < 0) {
+    stop("number of landmarks should be a positive number")
+  }
   
   # Apply PCA
   if (pca & !is_distance) {
@@ -127,8 +136,22 @@ Rtsne.default <- function(X, dims=2, initial_dims=50,
     init <- TRUE
   }
   
-  Rtsne_cpp(X, dims, perplexity, theta,verbose, max_iter, is_distance, Y_init, init,
-            stop_lying_iter, mom_switch_iter, momentum, final_momentum, eta, exaggeration_factor)
+  Rtsne_cpp(X,
+            dims,
+            perplexity,
+            theta,
+            verbose,
+            max_iter,
+            is_distance,
+            Y_init,
+            init,
+            stop_lying_iter,
+            mom_switch_iter,
+            momentum,
+            final_momentum,
+            eta,
+            exaggeration_factor,
+            n_landmarks)
 }
 
 #' @describeIn Rtsne tsne on given dist object
