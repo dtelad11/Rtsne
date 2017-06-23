@@ -63,6 +63,7 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
     if(N - 1 < 3 * perplexity) { Rcpp::stop("Perplexity too large for the number of data points!\n"); }
     if (verbose) Rprintf("Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
     if (verbose) Rprintf("Using n_landmarks = %d\n", n_landmarks);
+    if (verbose) Rprintf("Using momentum = %f, final_momentum = %f\n", momentum, final_momentum);
     bool exact = (theta == .0) ? true : false;
     
     // Set learning parameters
@@ -75,7 +76,7 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
     double* gains = (double*) malloc(N * no_dims * sizeof(double));
     if(dY == NULL || uY == NULL || gains == NULL) { Rcpp::stop("Memory allocation failed!\n"); }
     for(int i = 0; i < N * no_dims; i++)    uY[i] =  .0;
-    for(int i = 0; i < N * no_dims; i++) gains[i] = 1.0;
+    for(int i = 0; i < N * no_dims; i++) gains[i] = 0.01;
     // Allocate memory for landmarks.
     double* Y_landmarks = (double*) malloc(n_landmarks * no_dims * sizeof(double));
     
@@ -135,17 +136,16 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
 	// Initialize solution (randomly), if not already done
 	if (!init) { for(int i = 0; i < N * no_dims; i++) Y[i] = randn() * .0001; }
 
+  // Make init zero-mean.
+  zeroMean(Y, N, no_dims);
+
   // Copy landmarks.
   if(n_landmarks > 0) {
-    for(int i = 0; i < n_landmarks * no_dims; i++) {
-      Y_landmarks[i] = Y[i];
-    }
-
     // Find min/max, scale to [0, 1] range
-    min_0 = 99999
-    max_0 = -99999
-    min_1 = 99999
-    max_1 = -99999
+    double min_0 = 99999;
+    double max_0 = -99999;
+    double min_1 = 99999;
+    double max_1 = -99999;
 
     for(int i = 0; i < N; i++) {
       if(Y[i * no_dims + 0] < min_0) min_0 = Y[i * no_dims + 0];
@@ -154,11 +154,40 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
       if(Y[i * no_dims + 1] > max_1) max_1 = Y[i * no_dims + 1];
     }
 
-    diff_0 = max_0 - min_0;
-    diff_1 = max_1 - min_1;
+    Rprintf("Before normalization:\n");
+    Rprintf("min_0 = %f, max_0 = %f\n", min_0, max_0);
+    Rprintf("min_1 = %f, max_1 = %f\n", min_1, max_1);
+
+
+
+
+    double diff_0 = max_0 - min_0;
+    double diff_1 = max_1 - min_1;
     for(int i = 0; i < N; i++) {
       Y[i * no_dims + 0] = (Y[i * no_dims + 0] - min_0) / diff_0;
       Y[i * no_dims + 1] = (Y[i * no_dims + 1] - min_1) / diff_1;
+    }
+
+
+
+
+    min_0 = 99999;
+    max_0 = -99999;
+    min_1 = 99999;
+    max_1 = -99999;
+    for(int i = 0; i < N; i++) {
+      if(Y[i * no_dims + 0] < min_0) min_0 = Y[i * no_dims + 0];
+      if(Y[i * no_dims + 0] > max_0) max_0 = Y[i * no_dims + 0];
+      if(Y[i * no_dims + 1] < min_1) min_1 = Y[i * no_dims + 1];
+      if(Y[i * no_dims + 1] > max_1) max_1 = Y[i * no_dims + 1];
+    }
+
+    Rprintf("After normalization:\n");
+    Rprintf("min_0 = %f, max_0 = %f\n", min_0, max_0);
+    Rprintf("min_1 = %f, max_1 = %f\n", min_1, max_1);
+
+    for(int i = 0; i < n_landmarks * no_dims; i++) {
+      Y_landmarks[i] = Y[i];
     }
   }
 
@@ -185,8 +214,8 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
         else computeGradient(P, row_P, col_P, val_P, Y, N, no_dims, dY, theta);
         
         // Update gains
-        for(int i = 0; i < N * no_dims; i++) gains[i] = (sign_tsne(dY[i]) != sign_tsne(uY[i])) ? (gains[i] + .2) : (gains[i] * .8);
-        for(int i = 0; i < N * no_dims; i++) if(gains[i] < .01) gains[i] = .01;
+        for(int i = 0; i < N * no_dims; i++) gains[i] = (sign_tsne(dY[i]) != sign_tsne(uY[i])) ? (gains[i] + .002) : (gains[i] * .008);
+        for(int i = 0; i < N * no_dims; i++) if(gains[i] < .0001) gains[i] = .0001;
             
         // Perform gradient update (with momentum and gains)
         for(int i = 0; i < N * no_dims; i++) uY[i] = momentum * uY[i] - eta * gains[i] * dY[i];
@@ -194,29 +223,29 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
 
         // Copy back landmarks.
         if (n_landmarks > 0) {
-          for(int i = 0; i < n_landmarks * no_dims; i++) {
-            Y[i] = Y_landmarks[i];
-          }
+          // // Find min/max, scale to [0, 1] range
+          // double min_0 = 99999;
+          // double max_0 = -99999;
+          // double min_1 = 99999;
+          // double max_1 = -99999;
 
-          // Find min/max, scale to [0, 1] range
-          min_0 = 99999
-          max_0 = -99999
-          min_1 = 99999
-          max_1 = -99999
+          // for(int i = 0; i < N; i++) {
+          //   if(Y[i * no_dims + 0] < min_0) min_0 = Y[i * no_dims + 0];
+          //   if(Y[i * no_dims + 0] > max_0) max_0 = Y[i * no_dims + 0];
+          //   if(Y[i * no_dims + 1] < min_1) min_1 = Y[i * no_dims + 1];
+          //   if(Y[i * no_dims + 1] > max_1) max_1 = Y[i * no_dims + 1];
+          // }
 
-          for(int i = 0; i < N; i++) {
-            if(Y[i * no_dims + 0] < min_0) min_0 = Y[i * no_dims + 0];
-            if(Y[i * no_dims + 0] > max_0) max_0 = Y[i * no_dims + 0];
-            if(Y[i * no_dims + 1] < min_1) min_1 = Y[i * no_dims + 1];
-            if(Y[i * no_dims + 1] > max_1) max_1 = Y[i * no_dims + 1];
-          }
+          // double diff_0 = max_0 - min_0;
+          // double diff_1 = max_1 - min_1;
+          // for(int i = 0; i < N; i++) {
+          //   Y[i * no_dims + 0] = (Y[i * no_dims + 0] - min_0) / diff_0;
+          //   Y[i * no_dims + 1] = (Y[i * no_dims + 1] - min_1) / diff_1;
+          // }
 
-          diff_0 = max_0 - min_0;
-          diff_1 = max_1 - min_1;
-          for(int i = 0; i < N; i++) {
-            Y[i * no_dims + 0] = (Y[i * no_dims + 0] - min_0) / diff_0;
-            Y[i * no_dims + 1] = (Y[i * no_dims + 1] - min_1) / diff_1;
-          }
+          // for(int i = 0; i < n_landmarks * no_dims; i++) {
+          //   Y[i] = Y_landmarks[i];
+          // }
         }
         
         // Make solution zero-mean
