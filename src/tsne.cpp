@@ -62,7 +62,7 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
     // Determine whether we are using an exact algorithm
     if(N - 1 < 3 * perplexity) { Rcpp::stop("Perplexity too large for the number of data points!\n"); }
     if (verbose) Rprintf("Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
-    if (verbose) Rprintf("n_landmarks = %d\n", n_landmarks)
+    if (verbose) Rprintf("n_landmarks = %d\n", n_landmarks);
     bool exact = (theta == .0) ? true : false;
     
     // Set learning parameters
