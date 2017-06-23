@@ -59,8 +59,26 @@ Rcpp::List Rtsne_cpp(NumericMatrix X, int no_dims_in, double perplexity_in,
     }
     
     // Run tsne
-		tsne->run(data, N, D, Y, no_dims, perplexity, theta, verbose, max_iter, costs, distance_precomputed, 
-            itercosts, init, stop_lying_iter, mom_switch_iter, momentum, final_momentum, eta, exaggeration_factor);
+		tsne->run(data,
+              N,
+              D,
+              Y,
+              no_dims,
+              perplexity,
+              theta,
+              verbose,
+              max_iter,
+              costs,
+              distance_precomputed, 
+              itercosts,
+              init,
+              stop_lying_iter,
+              mom_switch_iter,
+              momentum,
+              final_momentum,
+              eta,
+              exaggeration_factor,
+              n_landmarks);
 
   	// Save the results
     Rcpp::NumericMatrix Yr(N, no_dims);
@@ -97,6 +115,7 @@ Rcpp::List Rtsne_cpp(NumericMatrix X, int no_dims_in, double perplexity_in,
                                            Rcpp::_["momentum"]=momentum, 
                                            Rcpp::_["final_momentum"]=final_momentum, 
                                            Rcpp::_["eta"]=eta, 
-                                           Rcpp::_["exaggeration_factor"]=exaggeration_factor);
+                                           Rcpp::_["exaggeration_factor"]=exaggeration_factor,
+                                           Rcpp::_["n_landmarks"] = n_landmarks);
     return output; 
 }

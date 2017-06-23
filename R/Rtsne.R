@@ -51,6 +51,7 @@
 #' \item{final_momentum}{Momentum used in the final part of the optimization}
 #' \item{eta}{Learning rate}
 #' \item{exaggeration_factor}{Exaggeration factor used to multiply the P matrix in the first part of the optimization}
+#' \item{n_landmarks}{Number of landmark points}
 #' 
 #' @references Maaten, L. Van Der, 2014. Accelerating t-SNE using Tree-Based Algorithms. Journal of Machine Learning Research, 15, p.3221-3245.
 #' @references van der Maaten, L.J.P. & Hinton, G.E., 2008. Visualizing High-Dimensional Data Using t-SNE. Journal of Machine Learning Research, 9, pp.2579-2605.
