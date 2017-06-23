@@ -48,7 +48,7 @@ Rcpp::List Rtsne_cpp(NumericMatrix X, int no_dims_in, double perplexity_in,
 		double* itercosts = (double*) calloc((int)(ceil(max_iter/50.0)), sizeof(double));
     if(Y == NULL || costs == NULL) { Rcpp::stop("Memory allocation failed!\n"); }
     
-    // Initialize solution (randomly)
+    // If Y_init exists, reorganize it into a vector
     if (init) {
       for (int i = 0; i < N; i++){
         for (int j = 0; j < no_dims; j++){

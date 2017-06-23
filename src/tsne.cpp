@@ -62,7 +62,7 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
     // Determine whether we are using an exact algorithm
     if(N - 1 < 3 * perplexity) { Rcpp::stop("Perplexity too large for the number of data points!\n"); }
     if (verbose) Rprintf("Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
-    if (verbose) Rprintf("n_landmarks = %d\n", n_landmarks);
+    if (verbose) Rprintf("Using n_landmarks = %d\n", n_landmarks);
     bool exact = (theta == .0) ? true : false;
     
     // Set learning parameters
@@ -76,6 +76,8 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
     if(dY == NULL || uY == NULL || gains == NULL) { Rcpp::stop("Memory allocation failed!\n"); }
     for(int i = 0; i < N * no_dims; i++)    uY[i] =  .0;
     for(int i = 0; i < N * no_dims; i++) gains[i] = 1.0;
+    // Allocate memory for landmarks.
+    double* Y_landmarks = (double*) malloc(n_landmarks * no_dims * sizeof(double));
     
     // Normalize input data (to prevent numerical problems)
     if (verbose) Rprintf("Computing input similarities...\n");
@@ -132,6 +134,14 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
 
 	// Initialize solution (randomly), if not already done
 	if (!init) { for(int i = 0; i < N * no_dims; i++) Y[i] = randn() * .0001; }
+
+  // Copy landmarks.
+  if (n_landmarks > 0) {
+    for(int i = 0; i < n_landmarks * no_dims; i++) {
+      Y_landmarks[i] = Y[i];
+      Rprintf("i = %d, Y[i] = %f\n", i, Y[i])
+    }
+  }
 
 	
 	// Perform main training loop
@@ -194,6 +204,7 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims,
     free(dY);
     free(uY);
     free(gains);
+    free(Y_landmarks);
     if(exact) free(P);
     else {
         free(row_P); row_P = NULL;
