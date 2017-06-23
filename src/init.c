@@ -7,7 +7,7 @@
 extern SEXP Rtsne_Rtsne_cpp(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-  {"Rtsne_Rtsne_cpp", (DL_FUNC) &Rtsne_Rtsne_cpp, 15},
+  {"Rtsne_Rtsne_cpp", (DL_FUNC) &Rtsne_Rtsne_cpp, 16},
   {NULL, NULL, 0}
 };
 

@@ -83,16 +83,25 @@ Rtsne <- function (X, ...) {
 
 #' @describeIn Rtsne Default Interface
 #' @export
-Rtsne.default <- function(X, dims=2, initial_dims=50, 
-                          perplexity=30, theta=0.5, 
+Rtsne.default <- function(X,
+                          dims=2,
+                          initial_dims=50, 
+                          perplexity=30,
+                          theta=0.5, 
                           check_duplicates=TRUE, 
-                          pca=TRUE, max_iter=1000,verbose=FALSE, 
-                          is_distance=FALSE, Y_init=NULL, 
-                          pca_center=TRUE, pca_scale=FALSE,
-                          stop_lying_iter=ifelse(is.null(Y_init),250L,0L), 
-                          mom_switch_iter=ifelse(is.null(Y_init),250L,0L), 
-                          momentum=0.5, final_momentum=0.8,
-                          eta=200.0, exaggeration_factor=12.0,
+                          pca=TRUE,
+                          max_iter=1000,
+                          verbose=FALSE, 
+                          is_distance=FALSE,
+                          Y_init=NULL, 
+                          pca_center=TRUE,
+                          pca_scale=FALSE,
+                          stop_lying_iter = ifelse(is.null(Y_init), 250L, 0L), 
+                          mom_switch_iter = ifelse(is.null(Y_init), 250L, 0L), 
+                          momentum=0.5,
+                          final_momentum=0.8,
+                          eta=200.0,
+                          exaggeration_factor=12.0,
                           n_landmarks = 0, ...) {
   
   is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
