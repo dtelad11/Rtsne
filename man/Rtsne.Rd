@@ -2,9 +2,9 @@
 % Please edit documentation in R/Rtsne.R
 \name{Rtsne}
 \alias{Rtsne}
-\alias{Rtsne.data.frame}
 \alias{Rtsne.default}
 \alias{Rtsne.dist}
+\alias{Rtsne.data.frame}
 \title{Barnes-Hut implementation of t-Distributed Stochastic Neighbor Embedding}
 \usage{
 Rtsne(X, ...)
@@ -15,7 +15,8 @@ Rtsne(X, ...)
   pca_center = TRUE, pca_scale = FALSE,
   stop_lying_iter = ifelse(is.null(Y_init), 250L, 0L),
   mom_switch_iter = ifelse(is.null(Y_init), 250L, 0L), momentum = 0.5,
-  final_momentum = 0.8, eta = 200, exaggeration_factor = 12, ...)
+  final_momentum = 0.8, eta = 200, exaggeration_factor = 12,
+  n_landmarks = 0, ...)
 
 \method{Rtsne}{dist}(X, ..., is_distance = TRUE)
 
@@ -61,6 +62,8 @@ Rtsne(X, ...)
 \item{eta}{numeric; Learning rate (default: 200.0)}
 
 \item{exaggeration_factor}{numeric; Exaggeration factor used to multiply the P matrix in the first part of the optimization (default: 12.0)}
+
+\item{n_landmarks}{integer; the first n_landmarks data points are anchored and not moved in gradient descent (default: 0)}
 }
 \value{
 List with the following elements:
@@ -103,6 +106,7 @@ If \code{X} is a data.frame, it is transformed into a matrix using \code{\link{m
 
 \item \code{data.frame}: tsne on data.frame
 }}
+
 \examples{
 iris_unique <- unique(iris) # Remove duplicates
 iris_matrix <- as.matrix(iris_unique[,1:4])
@@ -125,4 +129,3 @@ Maaten, L. Van Der, 2014. Accelerating t-SNE using Tree-Based Algorithms. Journa
 
 van der Maaten, L.J.P. & Hinton, G.E., 2008. Visualizing High-Dimensional Data Using t-SNE. Journal of Machine Learning Research, 9, pp.2579-2605.
 }
-

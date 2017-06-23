@@ -9,7 +9,8 @@ Rcpp::List Rtsne_cpp(NumericMatrix X, int no_dims_in, double perplexity_in,
                      bool distance_precomputed, NumericMatrix Y_in, bool init, 
                      int stop_lying_iter_in, int mom_switch_iter_in,
                      double momentum_in, double final_momentum_in, 
-                     double eta_in, double exaggeration_factor_in) {
+                     double eta_in, double exaggeration_factor_in,
+                     int n_landmarks) {
 
   int origN, N, D, no_dims = no_dims_in;
 
